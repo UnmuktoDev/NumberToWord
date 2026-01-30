@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>বাংলা সংখ্যা কনভার্টার - বিশাল সংখ্যা সমাধান</title>
+    <link rel="stylesheet" href="app/style.css">
+    <link rel="stylesheet" href="app/tailwind.css">
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
+  }
+}
+</script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800">বাংলা সংখ্যা</h1>
+                    <p class="text-xs text-emerald-600 font-semibold uppercase tracking-widest">Advanced Multi-System Converter</p>
+                </div>
+            </div>
+            <div class="hidden lg:flex items-center gap-2 text-slate-500 font-medium text-sm">
+                <span class="px-3 py-1 bg-slate-100 rounded-full">সংস্কৃত পদ্ধতি যুক্ত</span>
+                <span class="px-3 py-1 bg-slate-100 rounded-full">BigInt নিখুঁত</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 pt-12 pb-20">
+        <div class="text-center mb-16 space-y-4">
+            <h2 class="text-4xl md:text-5xl font-extrabold text-slate-900">
+                সব ধরণের <span class="text-emerald-600">বাংলা সংখ্যা</span> কনভার্টার
+            </h2>
+            <p class="text-lg text-slate-600 max-w-3xl mx-auto">
+                সাধারণ লক্ষ-কোটি পদ্ধতি থেকে শুরু করে প্রাচীন সংস্কৃত পদ্ধতি পর্যন্ত, সবকিছুই এখন এক জায়গায়। বিশাল বড় সংখ্যা নিয়ে আর কোনো চিন্তা নেই!
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Card 1: Number to Word -->
+            <div class="converter-card bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="card-header bg-gradient-to-r from-emerald-600 to-teal-600 p-6 flex items-center gap-4 text-white">
+                    <div class="p-3 bg-white/20 rounded-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="9" y2="9"/><line x1="4" x2="20" y1="15" y2="15"/><line x1="10" x2="8" y1="3" y2="21"/><line x1="16" x2="14" y1="3" y2="21"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">সংখ্যা → বানান</h2>
+                        <p class="text-emerald-50 text-xs">আধুনিক পদ্ধতি</p>
+                    </div>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="relative">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">ইনপুট সংখ্যা</label>
+                        <textarea id="numToWordInput" class="w-full h-28 p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-emerald-500 transition-all outline-none text-xl font-bold resize-none" placeholder="১৪৭৫৭০"></textarea>
+                        <button onclick="clearField('numToWordInput')" class="absolute top-8 right-2 p-2 text-slate-300 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                    </div>
+                    <div class="result-area p-5 bg-emerald-50 rounded-2xl border border-emerald-100 min-h-[120px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-emerald-600 uppercase">ফলাফল (বানান)</span>
+                            <button id="copyBtn1" class="text-emerald-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                        </div>
+                        <p id="numToWordResult" class="text-lg font-bold text-slate-800 italic text-slate-400"><span class="text-gray-500">এক লক্ষ সাতচল্লিশ হাজার পাঁচ শত সত্তর</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Word to Number -->
+            <div class="converter-card bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="card-header bg-gradient-to-r from-blue-600 to-indigo-600 p-6 flex items-center gap-4 text-white">
+                    <div class="p-3 bg-white/20 rounded-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 16 4 4 4-4"/><path d="M7 20V4"/><path d="m21 8-4-4-4 4"/><path d="M17 4v16"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">বানান → সংখ্যা</h2>
+                        <p class="text-blue-50 text-xs">বিপরীত রূপান্তর</p>
+                    </div>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="relative">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">ইনপুট বানান</label>
+                        <textarea id="wordToNumInput" class="w-full h-28 p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-blue-500 transition-all outline-none text-xl font-bold resize-none" placeholder="এক লক্ষ সাতচল্লিশ হাজার পাঁচ শত সত্তর"></textarea>
+                        <button onclick="clearField('wordToNumInput')" class="absolute top-8 right-2 p-2 text-slate-300 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                    </div>
+                    <div class="result-area p-5 bg-blue-50 rounded-2xl border border-blue-100 min-h-[120px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-blue-600 uppercase">ফলাফল (সংখ্যা)</span>
+                            <button id="copyBtn2" class="text-blue-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                        </div>
+                        <p id="wordToNumResult" class="text-2xl font-black text-slate-800 break-all italic text-slate-400 text-lg"><span class="text-gray-500">১৪৭৫৭০</span></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Sanskrit System -->
+            <div class="converter-card bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="card-header bg-gradient-to-r from-amber-600 to-orange-600 p-6 flex items-center gap-4 text-white">
+                    <div class="p-3 bg-white/20 rounded-2xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M8 7h6"/><path d="M8 11h8"/></svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold">সংস্কৃত সংখ্যা</h2>
+                        <p class="text-amber-50 text-xs">প্রাচীন গাণিতিক শাস্ত্র</p>
+                    </div>
+                </div>
+                <div class="p-8 space-y-6">
+                    <div class="relative">
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">ইনপুট বিশাল সংখ্যা</label>
+                        <textarea id="numToSanskritInput" class="w-full h-28 p-4 bg-slate-50 border-2 border-slate-200 rounded-2xl focus:border-amber-500 transition-all outline-none text-xl font-bold resize-none" placeholder="১৪৭৫৭০"></textarea>
+                        <button onclick="clearField('numToSanskritInput')" class="absolute top-8 right-2 p-2 text-slate-300 hover:text-red-500"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg></button>
+                    </div>
+                    <div class="result-area p-5 bg-amber-50 rounded-2xl border border-amber-100 min-h-[120px]">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-bold text-amber-600 uppercase">ফলাফল (সংস্কৃত)</span>
+                            <button id="copyBtn3" class="text-amber-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                        </div>
+                        <p id="numToSanskritResult" class="text-lg font-bold text-slate-800 italic text-slate-400"><span class="text-gray-500">এক লক্ষ চার অযুত সাত হাজার পাঁচ শতক সাত দশক</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legends -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
+            <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-emerald-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+                    </span>
+                    সাধারণ পদ্ধতির ধাপসমূহ
+                </h3>
+                <div id="standardLegend" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <!-- Dynamic standard legend -->
+                </div>
+                <p class="mt-6 text-sm text-slate-500 leading-relaxed italic border-t border-slate-100 pt-4">
+                    * কোটি পদ্ধতির উপরে গেলে এই কনভার্টারটি পুনরাবৃত্তিমূলক কোটি (যেমন কোটি কোটি) ব্যবহার করে বিশাল সংখ্যা গণনা করে।
+                </p>
+            </section>
+
+            <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
+                    <span class="text-amber-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                    </span>
+                    সংস্কৃত পদ্ধতির ধাপসমূহ
+                </h3>
+                <div id="sanskritLegend" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    <!-- Dynamic sanskrit legend -->
+                </div>
+                <p class="mt-6 text-sm text-slate-500 leading-relaxed italic border-t border-slate-100 pt-4">
+                    * প্রাচীন গাণিতিক শাস্ত্রে ব্যবহৃত প্রতিটি ১০-এর ঘাত বা নির্দিষ্ট গুণক ভিত্তিক আলাদা নাম।
+                </p>
+            </section>
+        </div>
+
+        <!-- 1 to 99 Reference Section -->
+        <section class="mt-16 bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
+            <h3 class="text-2xl font-bold mb-8 flex items-center gap-3" id="numberToWordList">
+                <span class="text-blue-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </span>
+                ১ থেকে ৯৯ পর্যন্ত বানান (শব্দভাণ্ডার)
+            </h3>
+            <div id="numberWordsGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                <!-- Dynamic 1-99 content -->
+            </div>
+            <p class="mt-8 text-sm text-slate-400 text-center border-t border-slate-100 pt-6 italic">
+                * সঠিক বানান ও উচ্চারণ শেখার জন্য একটি পূর্ণাঙ্গ তালিকা।
+            </p>
+        </section>
+    </main>
+
+    <footer class="text-center py-10 text-slate-400 text-sm">
+        <p>&copy; 2024 বাংলা সংখ্যা কনভার্টার প্রো। সংস্কৃত ও আধুনিক পদ্ধতির নিখুঁত রূপান্তর।</p>
+    </footer>
+
+    <script src="app/script.js"></script>
+</body>
+</html>

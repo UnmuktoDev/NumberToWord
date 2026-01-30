@@ -1,0 +1,86 @@
+*, html {
+    font-family: 'Hind Siliguri', sans-serif;
+}
+
+:root {
+    --primary: #059669;
+    --primary-light: #ecfdf5;
+    --secondary: #2563eb;
+    --secondary-light: #eff6ff;
+    --accent: #d97706;
+    --accent-light: #fffbeb;
+}
+
+body {
+    transition: background-color 0.3s ease;
+}
+
+.converter-card {
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
+}
+
+.converter-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+.result-area {
+    position: relative;
+    overflow: hidden;
+    transition: background-color 0.2s ease;
+}
+
+.result-area.active {
+    font-style: normal !important;
+    color: #1e293b !important;
+}
+
+textarea {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f8fafc;
+}
+
+textarea::-webkit-scrollbar {
+    width: 6px;
+}
+
+textarea::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 20px;
+}
+
+/* Copy success flash */
+.copied-flash {
+    animation: flash 1s ease-out;
+}
+
+@keyframes flash {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(16, 185, 129, 0.1); }
+    100% { background-color: transparent; }
+}
+
+/* Legend items hover */
+.legend-item {
+    transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+    transform: scale(1.05);
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 640px) {
+    .grid-cols-3 {
+        grid-template-cols: 1fr;
+    }
+}
+
+#numberToWordList {
+    scroll-margin-top: 80px;
+  position: sticky; 
+  top: 80px;        
+  background-color: white; 
+  z-index: 10;      
+  padding: 10px 0;
+}
