@@ -1,5 +1,11 @@
 let DATA = null;
 let REVERSE_WORDS = {};
+let isSpeaking = false;
+let currentAudio = null;
+
+// Icons for speaker states
+const SPEAKER_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>`;
+const LOADING_ICON = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
 
 // Initialize application
 async function init() {
@@ -7,7 +13,6 @@ async function init() {
         const response = await fetch('app/data.json');
         DATA = await response.json();
         
-        // Build reverse lookup for word-to-number
         Object.entries(DATA.WORDS_0_TO_99).forEach(([key, val]) => {
             REVERSE_WORDS[val] = BigInt(key);
         });
@@ -15,6 +20,9 @@ async function init() {
         setupEventListeners();
         renderLegends();
         renderNumberWords();
+
+        const voiceStatusEl = document.getElementById('voiceStatus');
+        if (voiceStatusEl) voiceStatusEl.classList.remove('hidden');
     } catch (error) {
         console.error("Failed to load converter data:", error);
     }
@@ -29,11 +37,13 @@ function setupEventListeners() {
         const val = banglaToEnglishDigits(n2w.value).replace(/[^0-9]/g, '');
         const resultEl = document.getElementById('numToWordResult');
         const copyBtn = document.getElementById('copyBtn1');
+        const speakBtn = document.getElementById('speakBtn1');
         
         if (!val) {
             resultEl.innerText = "অপেক্ষা করছি...";
             resultEl.classList.add('text-slate-400', 'italic');
             copyBtn.classList.add('hidden');
+            speakBtn.classList.add('hidden');
             return;
         }
 
@@ -41,17 +51,20 @@ function setupEventListeners() {
         resultEl.innerText = result;
         resultEl.classList.remove('text-slate-400', 'italic');
         copyBtn.classList.remove('hidden');
+        speakBtn.classList.remove('hidden');
     });
 
     w2n.addEventListener('input', () => {
         const val = w2n.value;
         const resultEl = document.getElementById('wordToNumResult');
         const copyBtn = document.getElementById('copyBtn2');
+        const speakBtn = document.getElementById('speakBtn2');
 
         if (!val.trim()) {
             resultEl.innerText = "অপেক্ষা করছি...";
             resultEl.classList.add('text-slate-400', 'italic');
             copyBtn.classList.add('hidden');
+            speakBtn.classList.add('hidden');
             return;
         }
 
@@ -60,8 +73,11 @@ function setupEventListeners() {
             resultEl.innerText = englishToBanglaDigits(result);
             resultEl.classList.remove('text-slate-400', 'italic');
             copyBtn.classList.remove('hidden');
+            speakBtn.classList.remove('hidden');
         } else {
-            resultEl.innerHTML = "<a href=\"#numberToWordList\">অকার্যকর বানান, সঠিক বানান এর জন্য\nনিচের পূর্ণাঙ্গ তালিকাটি দেখুন।</a>";
+            resultEl.innerHTML = `<a href="#numberToWordList" class="text-blue-500 underline">অকার্যকর বানান, সঠিক তালিকা দেখুন।</a>`;
+            copyBtn.classList.add('hidden');
+            speakBtn.classList.add('hidden');
         }
     });
 
@@ -69,11 +85,13 @@ function setupEventListeners() {
         const val = banglaToEnglishDigits(n2s.value).replace(/[^0-9]/g, '');
         const resultEl = document.getElementById('numToSanskritResult');
         const copyBtn = document.getElementById('copyBtn3');
+        const speakBtn = document.getElementById('speakBtn3');
 
         if (!val) {
             resultEl.innerText = "অপেক্ষা করছি...";
             resultEl.classList.add('text-slate-400', 'italic');
             copyBtn.classList.add('hidden');
+            speakBtn.classList.add('hidden');
             return;
         }
 
@@ -81,15 +99,111 @@ function setupEventListeners() {
         resultEl.innerText = result;
         resultEl.classList.remove('text-slate-400', 'italic');
         copyBtn.classList.remove('hidden');
+        speakBtn.classList.remove('hidden');
     });
 
-    // Copy buttons
-    document.getElementById('copyBtn1').onclick = () => copyText('numToWordResult');
-    document.getElementById('copyBtn2').onclick = () => copyText('wordToNumResult');
-    document.getElementById('copyBtn3').onclick = () => copyText('numToSanskritResult');
+    document.getElementById('copyBtn1').onclick = () => window.copyText('numToWordResult');
+    document.getElementById('copyBtn2').onclick = () => window.copyText('wordToNumResult');
+    document.getElementById('copyBtn3').onclick = () => window.copyText('numToSanskritResult');
+
+    document.getElementById('speakBtn1').onclick = (e) => window.speakText('numToWordResult', e.currentTarget);
+    document.getElementById('speakBtn2').onclick = (e) => window.speakText('wordToNumResult', e.currentTarget);
+    document.getElementById('speakBtn3').onclick = (e) => window.speakText('numToSanskritResult', e.currentTarget);
 }
 
-// Logic: Number to Bangla Words
+window.speakSpecificText = function(text, buttonEl = null) {
+    if (!text || isSpeaking) return;
+    
+    if (currentAudio) {
+        currentAudio.pause();
+        currentAudio = null;
+    }
+
+    try {
+        isSpeaking = true;
+        if (buttonEl) {
+            buttonEl.classList.add('audio-loading');
+            buttonEl.innerHTML = LOADING_ICON;
+        }
+
+        const audioUrl = `https://btts-sd9p.onrender.com/speak?text=${encodeURIComponent(text)}`;
+        const audio = new Audio(audioUrl);
+        currentAudio = audio;
+
+        const slowServerNotify = setTimeout(() => {
+            console.log("Audio server is starting up, please wait...");
+        }, 3000);
+
+        audio.oncanplaythrough = () => {
+            clearTimeout(slowServerNotify);
+            if (buttonEl) {
+                buttonEl.classList.remove('audio-loading');
+                buttonEl.classList.add('audio-playing');
+                buttonEl.innerHTML = SPEAKER_ICON;
+            }
+            audio.play().catch(e => {
+                console.error("Playback failed", e);
+                cleanup();
+            });
+        };
+
+        audio.onended = () => cleanup();
+
+        audio.onerror = () => {
+            clearTimeout(slowServerNotify);
+            cleanup();
+            alert("অডিও সার্ভার থেকে সাউন্ড পাওয়া যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।");
+        };
+
+        function cleanup() {
+            isSpeaking = false;
+            if (buttonEl) {
+                buttonEl.classList.remove('audio-loading');
+                buttonEl.classList.remove('audio-playing');
+                buttonEl.innerHTML = SPEAKER_ICON;
+            }
+            currentAudio = null;
+        }
+
+    } catch (err) {
+        console.error("TTS Server Error:", err);
+        isSpeaking = false;
+        if (buttonEl) {
+            buttonEl.classList.remove('audio-loading');
+            buttonEl.innerHTML = SPEAKER_ICON;
+        }
+    }
+};
+
+window.speakText = function(id, buttonEl) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const text = el.innerText;
+    if (text === "অপেক্ষা করছি..." || !text || text.includes("অকার্যকর")) return;
+    window.speakSpecificText(text, buttonEl);
+};
+
+window.clearField = function(id) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.value = '';
+        el.dispatchEvent(new Event('input'));
+    }
+};
+
+window.copyText = async function(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const text = el.innerText;
+    if (text === "অপেক্ষা করছি...") return;
+    try {
+        await navigator.clipboard.writeText(text);
+        const parent = el.parentElement;
+        parent.classList.add('copied-flash');
+        setTimeout(() => parent.classList.remove('copied-flash'), 1000);
+    } catch (err) { console.error(err); }
+};
+
 function numberToBanglaWords(numStr) {
     let n = BigInt(numStr);
     if (n === 0n) return DATA.WORDS_0_TO_99["0"];
@@ -125,7 +239,6 @@ function numberToBanglaWords(numStr) {
     return convert(n).replace(/\s+/g, ' ');
 }
 
-// Logic: Word to Number (Fixed for massive recursive Koti)
 function banglaWordsToNumber(words) {
     const clean = words.trim().replace(/[,।]/g, '').replace(/ এবং | ও /g, ' ').replace(/\s+/g, ' ');
     const tokens = clean.split(' ');
@@ -184,7 +297,6 @@ function numberToSanskritWords(numStr) {
     return result.join(' ').replace(/\s+/g, ' ').trim();
 }
 
-// Digit Conversion Helpers
 function englishToBanglaDigits(str) {
     return str.split('').map(c => {
         const idx = DATA.ENGLISH_NUMBERS.indexOf(c);
@@ -199,21 +311,6 @@ function banglaToEnglishDigits(str) {
     }).join('');
 }
 
-// UI Helpers
-function clearField(id) {
-    document.getElementById(id).value = '';
-    document.getElementById(id).dispatchEvent(new Event('input'));
-}
-
-async function copyText(id) {
-    const text = document.getElementById(id).innerText;
-    if (text === "অপেক্ষা করছি...") return;
-    await navigator.clipboard.writeText(text);
-    const parent = document.getElementById(id).parentElement;
-    parent.classList.add('copied-flash');
-    setTimeout(() => parent.classList.remove('copied-flash'), 1000);
-}
-
 function renderLegends() {
     const standardEl = document.getElementById('standardLegend');
     const standardItems = [
@@ -226,7 +323,7 @@ function renderLegends() {
     ];
 
     standardEl.innerHTML = standardItems.map(item => `
-        <div class="legend-item p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex flex-col items-center">
+        <div class="legend-item p-4 bg-emerald-50 rounded-2xl border border-emerald-100 flex flex-col items-center hover:bg-emerald-100 transition-all">
             <span class="font-bold text-emerald-800 text-lg">${item.l}</span>
             <span class="text-xs text-emerald-600 font-bold">${item.p}</span>
             <span class="text-[9px] text-slate-400 mt-1 uppercase">${item.d}</span>
@@ -235,7 +332,7 @@ function renderLegends() {
 
     const sanskritEl = document.getElementById('sanskritLegend');
     sanskritEl.innerHTML = DATA.SANSKRIT_UNITS.slice(0, 12).map(unit => `
-        <div class="legend-item p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col items-center">
+        <div class="legend-item p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col items-center hover:bg-slate-100 transition-all">
             <span class="font-bold text-slate-700 text-sm">${unit.label}</span>
             <span class="text-[10px] text-slate-500 font-mono">10^${unit.power}</span>
         </div>
@@ -244,17 +341,20 @@ function renderLegends() {
 
 function renderNumberWords() {
     const gridEl = document.getElementById('numberWordsGrid');
+    if (!gridEl) return;
     let html = '';
     
-    // Render 1 to 99
     for(let i = 1; i <= 99; i++) {
         const banglaNum = englishToBanglaDigits(i.toString());
         const word = DATA.WORDS_0_TO_99[i.toString()];
         
         html += `
-            <div class="number-word-card p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col items-center hover:bg-blue-50 hover:border-blue-200 transition-all cursor-default">
+            <div class="number-word-card p-3 bg-slate-50 rounded-xl border border-slate-100 flex flex-col items-center hover:bg-blue-50 hover:border-blue-200 transition-all group relative">
                 <span class="text-xs font-bold text-slate-400 mb-1">${banglaNum}</span>
                 <span class="text-sm font-semibold text-slate-800">${word}</span>
+                <button onclick="window.speakSpecificText('${word}', this)" class="mt-2 text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-110">
+                    ${SPEAKER_ICON}
+                </button>
             </div>
         `;
     }
