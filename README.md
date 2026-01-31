@@ -5,6 +5,7 @@ An advanced, high-performance web tool designed to convert extremely large numbe
 ![Bangla Number Converter](https://img.shields.io/badge/Status-Active-emerald)
 ![JS](https://img.shields.io/badge/Vanilla-JS-yellow)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-blue)
+[![HitCount](https://hits.dwyl.com/UnmuktoDev/NumberToWord.svg?style=flat-square&show=unique)](http://hits.dwyl.com/UnmuktoDev/NumberToWord)
 
 ## 🚀 Key Features
 
