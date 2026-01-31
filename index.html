@@ -6,15 +6,51 @@
     <title>বাংলা সংখ্যা কনভার্টার - বিশাল সংখ্যা সমাধান</title>
     <link rel="stylesheet" href="app/style.css">
     <link rel="stylesheet" href="app/tailwind.css">
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "lucide-react": "https://esm.sh/lucide-react@^0.563.0"
-  }
-}
-</script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "বাংলা সংখ্যা থেকে কথা কনভার্টার",
+      "alternateName": "Number to Word Converter",
+      "operatingSystem": "Web",
+      "applicationCategory": "UtilityApplication",
+      "description": "সাধারণ লক্ষ-কোটি পদ্ধতি থেকে শুরু করে প্রাচীন সংস্কৃত পদ্ধতি পর্যন্ত, সবকিছুই এখন এক জায়গায়। সংখ্যা থেকে বানান এবং বানান থেকে সংখ্যা, উভয়ই সহজে রূপান্তর করুন।",
+      "url": "https://numbertoword.unmukto.org.bd/",
+      "inLanguage": "bn",
+      "featureList": [
+        "Number to Word Conversion",
+        "Word to Number Conversion",
+        "Supports Modern and Sanskrit Systems",
+        "Handles Very Large Numbers"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Unmukto",
+        "url": "https://unmukto.org.bd/",
+        "nonprofit": true
+      },
+      "keywords": "Number Converter, Number to Words, Words to Number, Bengali Numbers, Sanskrit Numbers, Multi-language Converter",
+      "potentialAction": {
+        "@type": "ConvertAction",
+        "target": "https://numbertoword.unmukto.org.bd/",
+        "description": "Convert numbers to words in Bengali, Sanskrit, and other languages."
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "BDT",
+        "url": "https://numbertoword.unmukto.org.bd/"
+      },
+      "softwareVersion": "1.0",
+      "datePublished": "2026-01-31",
+      "dateModified": "2026-01-31",
+      "image": "https://numbertoword.unmukto.org.bd/logo.png",
+      "audience": {
+        "@type": "Audience",
+        "audienceType": "GeneralPublic"
+      }
+    }
+    </script>
 </head>
 <body class="bg-slate-50 text-slate-900">
     <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
@@ -25,9 +61,9 @@
                     <p class="text-xs text-emerald-600 font-semibold uppercase tracking-widest">Advanced Multi-System Converter</p>
                 </div>
             </div>
-            <div class="hidden lg:flex items-center gap-2 text-slate-500 font-medium text-sm">
-                <span class="px-3 py-1 bg-slate-100 rounded-full">সংস্কৃত পদ্ধতি যুক্ত</span>
-                <span class="px-3 py-1 bg-slate-100 rounded-full">BigInt নিখুঁত</span>
+            <div id="voiceStatus" class="hidden sm:flex items-center gap-2 px-3 py-1 bg-slate-100 rounded-full text-[10px] font-bold uppercase tracking-tighter text-slate-400">
+                <div id="voiceDot" class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span id="voiceText" class="text-emerald-600">অডিও সার্ভার সক্রিয়</span>
             </div>
         </div>
     </header>
@@ -63,9 +99,12 @@
                     <div class="result-area p-5 bg-emerald-50 rounded-2xl border border-emerald-100 min-h-[120px]">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-bold text-emerald-600 uppercase">ফলাফল (বানান)</span>
-                            <button id="copyBtn1" class="text-emerald-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                            <div class="flex gap-2">
+                                <button id="speakBtn1" class="text-emerald-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                                <button id="copyBtn1" class="text-emerald-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                            </div>
                         </div>
-                        <p id="numToWordResult" class="text-lg font-bold text-slate-800 italic text-slate-400"><span class="text-gray-500">এক লক্ষ সাতচল্লিশ হাজার পাঁচ শত সত্তর</span></p>
+                        <p id="numToWordResult" class="text-lg font-bold text-slate-800 italic text-slate-400">অপেক্ষা করছি...</p>
                     </div>
                 </div>
             </div>
@@ -90,9 +129,12 @@
                     <div class="result-area p-5 bg-blue-50 rounded-2xl border border-blue-100 min-h-[120px]">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-bold text-blue-600 uppercase">ফলাফল (সংখ্যা)</span>
-                            <button id="copyBtn2" class="text-blue-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                            <div class="flex gap-2">
+                                <button id="speakBtn2" class="text-blue-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                                <button id="copyBtn2" class="text-blue-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                            </div>
                         </div>
-                        <p id="wordToNumResult" class="text-2xl font-black text-slate-800 break-all italic text-slate-400 text-lg"><span class="text-gray-500">১৪৭৫৭০</span></p>
+                        <p id="wordToNumResult" class="text-2xl font-black text-slate-800 break-all italic text-slate-400 text-lg">অপেক্ষা করছি...</p>
                     </div>
                 </div>
             </div>
@@ -117,15 +159,18 @@
                     <div class="result-area p-5 bg-amber-50 rounded-2xl border border-amber-100 min-h-[120px]">
                         <div class="flex justify-between items-center mb-2">
                             <span class="text-[10px] font-bold text-amber-600 uppercase">ফলাফল (সংস্কৃত)</span>
-                            <button id="copyBtn3" class="text-amber-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                            <div class="flex gap-2">
+                                <button id="speakBtn3" class="text-amber-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg></button>
+                                <button id="copyBtn3" class="text-amber-700 hidden"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                            </div>
                         </div>
-                        <p id="numToSanskritResult" class="text-lg font-bold text-slate-800 italic text-slate-400"><span class="text-gray-500">এক লক্ষ চার অযুত সাত হাজার পাঁচ শতক সাত দশক</span></p>
+                        <p id="numToSanskritResult" class="text-lg font-bold text-slate-800 italic text-slate-400">অপেক্ষা করছি...</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Legends -->
+        <!-- Legends Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-16">
             <section class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-200">
                 <h3 class="text-2xl font-bold mb-6 flex items-center gap-3">
@@ -135,7 +180,6 @@
                     সাধারণ পদ্ধতির ধাপসমূহ
                 </h3>
                 <div id="standardLegend" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                    <!-- Dynamic standard legend -->
                 </div>
                 <p class="mt-6 text-sm text-slate-500 leading-relaxed italic border-t border-slate-100 pt-4">
                     * কোটি পদ্ধতির উপরে গেলে এই কনভার্টারটি পুনরাবৃত্তিমূলক কোটি (যেমন কোটি কোটি) ব্যবহার করে বিশাল সংখ্যা গণনা করে।
@@ -150,7 +194,6 @@
                     সংস্কৃত পদ্ধতির ধাপসমূহ
                 </h3>
                 <div id="sanskritLegend" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    <!-- Dynamic sanskrit legend -->
                 </div>
                 <p class="mt-6 text-sm text-slate-500 leading-relaxed italic border-t border-slate-100 pt-4">
                     * প্রাচীন গাণিতিক শাস্ত্রে ব্যবহৃত প্রতিটি ১০-এর ঘাত বা নির্দিষ্ট গুণক ভিত্তিক আলাদা নাম।
@@ -158,24 +201,15 @@
             </section>
         </div>
 
-        <!-- 1 to 99 Reference Section -->
+        <!-- Reference Section -->
         <section class="mt-16 bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
             <h3 class="text-2xl font-bold mb-8 flex items-center gap-3" id="numberToWordList">
-                <span class="text-blue-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                </span>
                 ১ থেকে ৯৯ পর্যন্ত বানান (শব্দভাণ্ডার)
             </h3>
-            <div id="numberWordsGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                <!-- Dynamic 1-99 content -->
-            </div>
-            <p class="mt-8 text-sm text-slate-400 text-center border-t border-slate-100 pt-6 italic">
-                * সঠিক বানান ও উচ্চারণ শেখার জন্য একটি পূর্ণাঙ্গ তালিকা।
-            </p>
+            <div id="numberWordsGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3"></div>
         </section>
     </main>
 
     <script src="app/script.js"></script>
 </body>
-
 </html>
