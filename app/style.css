@@ -124,3 +124,63 @@ textarea::-webkit-scrollbar-thumb {
     50% { background-color: rgba(16, 185, 129, 0.1); }
     100% { background-color: transparent; }
 }
+
+/* GitHub Button */
+.github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 8px 16px;
+    background-color: #0f172a; /* slate-900 */
+    color: #ffffff;
+
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+
+    text-decoration: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+
+    transition: 
+        background-color 0.2s ease,
+        transform 0.1s ease,
+        box-shadow 0.2s ease;
+}
+
+.github-btn:hover {
+    background-color: #1e293b; /* slate-800 */
+}
+
+.github-btn:active {
+    transform: scale(0.95);
+}
+
+/* Icons */
+.github-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.github-external {
+    width: 12px;
+    height: 12px;
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+}
+
+.github-btn:hover .github-external {
+    opacity: 1;
+}
+
+/* Text visibility (like Tailwind hidden md:inline) */
+.github-text {
+    display: none;
+}
+
+/* Show text on medium+ screens */
+@media (min-width: 768px) {
+    .github-text {
+        display: inline;
+    }
+}
