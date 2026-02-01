@@ -34,12 +34,16 @@ function setupEventListeners() {
     const n2s = document.getElementById('numToSanskritInput');
 
     n2w.addEventListener('input', () => {
-        const val = banglaToEnglishDigits(n2w.value).replace(/[^0-9]/g, '');
+        // Allow numbers and a single dot
+        let val = banglaToEnglishDigits(n2w.value).replace(/[^0-9.]/g, '');
+        const parts = val.split('.');
+        if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+        
         const resultEl = document.getElementById('numToWordResult');
         const copyBtn = document.getElementById('copyBtn1');
         const speakBtn = document.getElementById('speakBtn1');
         
-        if (!val) {
+        if (!val || val === '.') {
             resultEl.innerText = "অপেক্ষা করছি...";
             resultEl.classList.add('text-slate-400', 'italic');
             copyBtn.classList.add('hidden');
@@ -82,12 +86,15 @@ function setupEventListeners() {
     });
 
     n2s.addEventListener('input', () => {
-        const val = banglaToEnglishDigits(n2s.value).replace(/[^0-9]/g, '');
+        let val = banglaToEnglishDigits(n2s.value).replace(/[^0-9.]/g, '');
+        const parts = val.split('.');
+        if (parts.length > 2) val = parts[0] + '.' + parts.slice(1).join('');
+
         const resultEl = document.getElementById('numToSanskritResult');
         const copyBtn = document.getElementById('copyBtn3');
         const speakBtn = document.getElementById('speakBtn3');
 
-        if (!val) {
+        if (!val || val === '.') {
             resultEl.innerText = "অপেক্ষা করছি...";
             resultEl.classList.add('text-slate-400', 'italic');
             copyBtn.classList.add('hidden');
@@ -205,15 +212,19 @@ window.copyText = async function(id) {
 };
 
 function numberToBanglaWords(numStr) {
-    let n = BigInt(numStr);
-    if (n === 0n) return DATA.WORDS_0_TO_99["0"];
+    const parts = numStr.split('.');
+    let integerPartStr = parts[0] || '0';
+    let fractionPartStr = parts[1] || '';
 
+    let n = BigInt(integerPartStr);
+    
     const KOTI = 10000000n;
     const LOKKHO = 100000n;
     const HAJAR = 1000n;
     const SHOTOK = 100n;
 
     function convert(val) {
+        if (val === 0n) return DATA.WORDS_0_TO_99["0"];
         let result = "";
         if (val >= KOTI) {
             result += convert(val / KOTI) + " কোটি ";
@@ -236,12 +247,47 @@ function numberToBanglaWords(numStr) {
         }
         return result.trim();
     }
-    return convert(n).replace(/\s+/g, ' ');
+
+    let finalWords = (n === 0n && integerPartStr !== "") ? DATA.WORDS_0_TO_99["0"] : convert(n);
+
+    if (fractionPartStr.length > 0) {
+        finalWords += " দশমিক";
+        
+        let firstNonZero = -1;
+        for (let i = 0; i < fractionPartStr.length; i++) {
+            if (fractionPartStr[i] !== '0') {
+                firstNonZero = i;
+                break;
+            }
+        }
+
+        if (firstNonZero === -1) {
+            // Case: .000
+            for (let i = 0; i < fractionPartStr.length; i++) {
+                finalWords += " " + DATA.WORDS_0_TO_99["0"];
+            }
+        } else {
+            // Case: .010 -> leading zeros as words
+            for (let i = 0; i < firstNonZero; i++) {
+                finalWords += " " + DATA.WORDS_0_TO_99["0"];
+            }
+            // Case: The rest as a whole number
+            finalWords += " " + convert(BigInt(fractionPartStr.substring(firstNonZero)));
+        }
+    }
+
+    return finalWords.replace(/\s+/g, ' ').trim();
 }
 
 function banglaWordsToNumber(words) {
     const clean = words.trim().replace(/[,।]/g, '').replace(/ এবং | ও /g, ' ').replace(/\s+/g, ' ');
-    const tokens = clean.split(' ');
+    
+    // Check if it contains "দশমিক"
+    const decimalSplit = clean.split('দশমিক');
+    let integerWords = decimalSplit[0].trim();
+    let fractionWords = decimalSplit[1] ? decimalSplit[1].trim() : '';
+
+    const tokens = integerWords.split(' ');
     
     let total = 0n;
     let temp = 0n;
@@ -271,30 +317,85 @@ function banglaWordsToNumber(words) {
             }
         }
     }
-    return (total + temp).toString();
-}
+    
+    let result = (total + temp).toString();
 
-function numberToSanskritWords(numStr) {
-    let n = BigInt(numStr);
-    if (n === 0n) return DATA.WORDS_0_TO_99["0"];
+    if (fractionWords) {
+        result += '.';
+        // Fractional part in words to digits logic:
+        // If it starts with 'শূন্য', keep digit-by-digit for leading zeros.
+        // If it looks like a number word (e.g., 'দশ'), convert it.
+        const fractionTokens = fractionWords.split(' ');
+        let leadingZeroMode = true;
+        let restOfFractionWords = [];
 
-    let result = [];
-    let remaining = n;
+        for (let token of fractionTokens) {
+            if (leadingZeroMode && token === DATA.WORDS_0_TO_99["0"]) {
+                result += "0";
+            } else {
+                leadingZeroMode = false;
+                restOfFractionWords.push(token);
+            }
+        }
 
-    for (const unit of DATA.SANSKRIT_UNITS) {
-        const unitVal = BigInt(unit.value);
-        if (remaining >= unitVal) {
-            let count = remaining / unitVal;
-            result.push(`${numberToBanglaWords(count.toString())} ${unit.label}`);
-            remaining %= unitVal;
+        if (restOfFractionWords.length > 0) {
+            // Convert the rest of the words as a whole number and append it
+            // We reuse banglaWordsToNumber recursively for the segment
+            const restNum = banglaWordsToNumber(restOfFractionWords.join(' '));
+            result += restNum;
         }
     }
 
-    if (remaining > 0n) {
-        result.push(DATA.WORDS_0_TO_99[Number(remaining).toString()]);
+    return result;
+}
+
+function numberToSanskritWords(numStr) {
+    const parts = numStr.split('.');
+    let integerPartStr = parts[0] || '0';
+    let fractionPartStr = parts[1] || '';
+
+    let n = BigInt(integerPartStr);
+    let result = [];
+    let remaining = n;
+
+    if (n === 0n && fractionPartStr.length === 0) return DATA.WORDS_0_TO_99["0"];
+    
+    if (n > 0n) {
+        for (const unit of DATA.SANSKRIT_UNITS) {
+            const unitVal = BigInt(unit.value);
+            if (remaining >= unitVal && unitVal > 0n) {
+                let count = remaining / unitVal;
+                result.push(`${numberToBanglaWords(count.toString())} ${unit.label}`);
+                remaining %= unitVal;
+            }
+        }
+        if (remaining > 0n) {
+            result.push(DATA.WORDS_0_TO_99[Number(remaining).toString()]);
+        }
+    } else if (integerPartStr !== "") {
+        result.push(DATA.WORDS_0_TO_99["0"]);
     }
 
-    return result.join(' ').replace(/\s+/g, ' ').trim();
+    let finalStr = result.join(' ').replace(/\s+/g, ' ').trim();
+
+    if (fractionPartStr.length > 0) {
+        finalStr += " দশমিক";
+        let firstNonZero = -1;
+        for (let i = 0; i < fractionPartStr.length; i++) {
+            if (fractionPartStr[i] !== '0') {
+                firstNonZero = i;
+                break;
+            }
+        }
+        if (firstNonZero === -1) {
+            for (let i = 0; i < fractionPartStr.length; i++) finalStr += " " + DATA.WORDS_0_TO_99["0"];
+        } else {
+            for (let i = 0; i < firstNonZero; i++) finalStr += " " + DATA.WORDS_0_TO_99["0"];
+            finalStr += " " + numberToBanglaWords(fractionPartStr.substring(firstNonZero));
+        }
+    }
+
+    return finalStr.trim();
 }
 
 function englishToBanglaDigits(str) {
